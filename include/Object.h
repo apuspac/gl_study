@@ -11,10 +11,14 @@ class Object
     // 頂点index buffer object
     GLuint ibo;
 
+
     public:
         struct Vertex
         {
             GLfloat position[3];
+
+            // color
+            GLfloat color[3];
         };
 
     // constructor
@@ -45,8 +49,11 @@ class Object
         );
 
         // 頂点buffer objectをin変数から参照できるようにする
-        glVertexAttribPointer(0, size, GL_FLOAT, GL_FALSE, 0, 0);
+        glVertexAttribPointer(0, size, GL_FLOAT, GL_FALSE, sizeof(Vertex), static_cast<Vertex *>(0)->position);
         glEnableVertexAttribArray(0);
+        // New: color
+        glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), static_cast<Vertex *>(0)->color);
+        glEnableVertexAttribArray(1);
 
         // indexのvbo (vertexと一緒にvaoにbindする)
         glGenBuffers(1, &ibo);

@@ -97,6 +97,7 @@ GLuint createProgram(const char *vsrc, const char *fsrc)
 
     // link program object
     glBindAttribLocation(program, 0, "position");
+    glBindAttribLocation(program, 1, "color");
     glBindFragDataLocation(program, 0, "fragment");
     glLinkProgram(program);
 
@@ -156,48 +157,17 @@ GLuint loadProgram(const char *vert, const char *frag)
     return vstat && fstat ? createProgram(vsrc.data(), fsrc.data()) : 0;
 }
 
-constexpr Object::Vertex rectangleVertex[] = 
-{
-    {-0.5f, -0.5f},
-    {1.5f, -0.5f},
-    {0.5f, 0.5f},
-    {-0.5f, 0.5f}
-};
-
-constexpr Object::Vertex rectangleVertex2[] = 
-{
-    {-0.5f, -0.5f},
-    {1.5f, -0.5f},
-    {1.5f, 1.5f},
-    {-0.5f, 1.5f}
-};
-
-constexpr Object::Vertex octahedronVertex[] = 
-{
-    {0.0f, 1.0f, 0.0f},
-    {-1.0f, 0.0f, 0.0f},
-    {0.0f, -1.0f, 0.0f},
-    {1.0f, 0.0f, 0.0f},
-    {0.0f, 1.0f, 0.0f},
-    {0.0f, 0.0f, 1.0f},
-    {0.0f, -1.0f, 0.0f},
-    {0.0f, 0.0f, -1.0f},
-    {-1.0f, 0.0f, 0.0f},
-    {0.0f, 0.0f, 1.0f},
-    {1.0f, 0.0f, 0.0f},
-    {0.0f, 0.0f, -1.0f},
-};
 
 constexpr Object::Vertex cubeVertex[] =
 {
-    {-1.0f, -1.0f, -1.0f},
-    {-1.0f, -1.0f, 1.0f},
-    {-1.0f, 1.0f, 1.0f},
-    {-1.0f, 1.0f, -1.0f},
-    {1.0f, 1.0f, -1.0f},
-    {1.0f, -1.0f, -1.0f},
-    {1.0f, -1.0f, 1.0f},
-    {1.0f, 1.0f, 1.0f},
+    {-1.0f, -1.0f, -1.0f, 0.0f, 0.0f, 0.0f},
+    {-1.0f, -1.0f, 1.0f,  0.0f, 0.0f, 0.8f},
+    {-1.0f, 1.0f, 1.0f,   0.0f, 0.8f, 0.0f},
+    {-1.0f, 1.0f, -1.0f,  0.0f, 0.8f, 0.8f},
+    {1.0f,  1.0f, -1.0f,   0.8f, 0.0f, 0.0f},
+    {1.0f, -1.0f, -1.0f,  0.8f, 0.0f, 0.8f},
+    {1.0f, -1.0f, 1.0f,   0.8f, 0.8f, 0.0f},
+    {1.0f, 1.0f, 1.0f,    0.8f, 0.8f, 0.8f},
 };
 
 constexpr GLuint wireCubeIndex[] =
