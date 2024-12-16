@@ -236,7 +236,7 @@ int main()
         const GLfloat *const size(window->getSize());
         const GLfloat scale(window->getScale() * 2.0f);
         const GLfloat w(size[0] / scale), h(size[1] / scale);
-        const Matrix projection(Matrix::orthogonal(-w, w, -h, h, 1.0f, 10.0f));
+        const Matrix projection(Matrix::frustum(-w, w, -h, h, 1.0f, 10.0f));
 
         // translate matrix
         const GLfloat *const location(window->getLocation());

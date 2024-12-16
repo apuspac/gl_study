@@ -302,6 +302,62 @@ class Matrix
 
         }
 
+
+        static Matrix frustum(
+                GLfloat left, GLfloat right,
+                GLfloat bottom, GLfloat top,
+                GLfloat zNear, GLfloat zFar
+        )
+        {
+            Matrix t;
+            const GLfloat dx(right - left);
+            const GLfloat dy(top - bottom);
+            const GLfloat dz(zFar - zNear);
+
+
+            if (dx != 0.0f && dy != 0.0f && dz != 0.0f)
+            {
+                t.loadIdentity();
+
+                t[0] = 2.0f * zNear / dx;
+                t[5] = 2.0f * zNear / dy;
+                t[8] = (right + left) / dx;
+                t[9] = (top + bottom) / dy;
+                t[10] = -(zFar + zNear) / dz;
+                t[11] = -1.0f;
+                t[14] = - 2.0f * zFar * zNear / dz;
+                t[15] = 0.0f;
+            }
+
+            return t;
+
+
+        }
+
+        static Matrix perspective(GLfloat fovy, GLfloat aspect, GLfloat zNear, GLfloat zFar)
+        {
+            Matrix t;
+            const GLfloat dz(zFar - zNear);
+
+            if (dz != 0.0f)
+            {
+                t.loadIdentity();
+
+                const GLfloat f(1.0f / tan(fovy * 0.5f));
+
+
+                t[0] = f / aspect;
+                t[5] = f;
+                t[10] = -(zFar + zNear)/ dz;
+                t[11] = -1.0f;
+                t[14] = -2.0f * zFar * zNear / dz;
+                t[15] = 0.0f;
+
+
+            }
+
+            return t;
+        }
                 
 
 
