@@ -7,8 +7,9 @@
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
 #include "Window.h"
-#include "Shape.h"
 #include "Matrix.h"
+#include "Shape.h"
+#include "ShapeIndex.h"
 
 // shader objectrのコンパイル結果の表示
 GLboolean printShaderInfoLog(GLuint shader, const char *str)
@@ -171,6 +172,50 @@ constexpr Object::Vertex rectangleVertex2[] =
     {-0.5f, 1.5f}
 };
 
+constexpr Object::Vertex octahedronVertex[] = 
+{
+    {0.0f, 1.0f, 0.0f},
+    {-1.0f, 0.0f, 0.0f},
+    {0.0f, -1.0f, 0.0f},
+    {1.0f, 0.0f, 0.0f},
+    {0.0f, 1.0f, 0.0f},
+    {0.0f, 0.0f, 1.0f},
+    {0.0f, -1.0f, 0.0f},
+    {0.0f, 0.0f, -1.0f},
+    {-1.0f, 0.0f, 0.0f},
+    {0.0f, 0.0f, 1.0f},
+    {1.0f, 0.0f, 0.0f},
+    {0.0f, 0.0f, -1.0f},
+};
+
+constexpr Object::Vertex cubeVertex[] =
+{
+    {-1.0f, -1.0f, -1.0f},
+    {-1.0f, -1.0f, 1.0f},
+    {-1.0f, 1.0f, 1.0f},
+    {-1.0f, 1.0f, -1.0f},
+    {1.0f, 1.0f, -1.0f},
+    {1.0f, -1.0f, -1.0f},
+    {1.0f, -1.0f, 1.0f},
+    {1.0f, 1.0f, 1.0f},
+};
+
+constexpr GLuint wireCubeIndex[] =
+{
+    1, 0,
+    2, 7,
+    3, 0,
+    4, 7,
+    5, 0,
+    6, 7,
+    1, 2,
+    2, 3,
+    3, 4,
+    4, 5,
+    5, 6,
+    6, 1,
+};
+
 
 
 int main()
@@ -220,7 +265,9 @@ int main()
 
 
     // std::unique_ptr<const Shape> shape(new Shape(2, 4, rectangleVertex));
-    std::unique_ptr<const Shape> shape2(new Shape(2, 4, rectangleVertex2));
+    // std::unique_ptr<const Shape> shape(new Shape(2, 4, rectangleVertex2));
+    // std::unique_ptr<const Shape> shape(new Shape(3, 12, octahedronVertex));
+    std::unique_ptr<const Shape> shape(new ShapeIndex(3, 8, cubeVertex, 24, wireCubeIndex));
 
 
 
@@ -234,9 +281,9 @@ int main()
 
         // 直交投影変換行列 (一緒にscale等も計算)
         const GLfloat *const size(window->getSize());
-        const GLfloat scale(window->getScale() * 2.0f);
-        const GLfloat w(size[0] / scale), h(size[1] / scale);
-        const Matrix projection(Matrix::frustum(-w, w, -h, h, 1.0f, 10.0f));
+        const GLfloat fovy(window->getScale() * 0.01f);
+        const GLfloat aspect(size[0] / size[1]);
+        const Matrix projection(Matrix::perspective(fovy, aspect, 1.0f, 10.0f));
 
         // translate matrix
         const GLfloat *const location(window->getLocation());
@@ -253,8 +300,7 @@ int main()
 
 
         // 描画
-        // shape->draw();
-        shape2->draw();
+        shape->draw();
 
 
         // カラーバッファを入れ替える

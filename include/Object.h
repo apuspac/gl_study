@@ -8,17 +8,27 @@ class Object
     // 頂点buffer object
     GLuint vbo;
 
+    // 頂点index buffer object
+    GLuint ibo;
+
     public:
         struct Vertex
         {
-            GLfloat position[2];
+            GLfloat position[3];
         };
 
     // constructor
     // size: 頂点の位置の次元
     // vertexcount: 頂点の数
     // vertex: 頂点属性を格納した配列
-    Object(GLint size, GLsizei vertexcount, const Vertex *vertex)
+    // indexcount: 頂点のindexの要素数
+    // index: 頂点のindexを格納した配列
+    Object(
+            GLint size, 
+            GLsizei vertexcount, 
+            const Vertex *vertex, 
+            GLsizei indexcount = 0, 
+            const GLuint *index = NULL)
     {
         //頂点配列object vao 
         glGenVertexArrays(1, &vao);
@@ -37,6 +47,16 @@ class Object
         // 頂点buffer objectをin変数から参照できるようにする
         glVertexAttribPointer(0, size, GL_FLOAT, GL_FALSE, 0, 0);
         glEnableVertexAttribArray(0);
+
+        // indexのvbo (vertexと一緒にvaoにbindする)
+        glGenBuffers(1, &ibo);
+        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo);
+        glBufferData(
+            GL_ELEMENT_ARRAY_BUFFER,
+            indexcount * sizeof(GLuint),
+            index,
+            GL_STATIC_DRAW
+        );
     }
 
     // destructor
@@ -44,6 +64,7 @@ class Object
     {
         glDeleteVertexArrays(1, &vao);
         glDeleteBuffers(1, &vbo);
+        glDeleteBuffers(1, &ibo);
     }
     
     // 頂点配列objectの結合
