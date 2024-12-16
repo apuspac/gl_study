@@ -274,6 +274,7 @@ class Matrix
 
         }
 
+        // 直交投影変換行列
         static Matrix orthogonal(
                 GLfloat left, GLfloat right,
                 GLfloat bottom, GLfloat top,
@@ -291,7 +292,7 @@ class Matrix
 
                 t[0] = 2.0f / dx;
                 t[5] = 2.0f / dy;
-                t[10] = 2.0f / dz;
+                t[10] = -2.0f / dz;
                 t[12] = -(right + left) / dx;
                 t[13] = -(top + bottom) / dy;
                 t[14] = -(zFar + zNear) / dz;

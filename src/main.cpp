@@ -232,25 +232,23 @@ int main()
 
         glUseProgram(program);
 
-        // scale matrix
-        // vertex shaderでやってたことをこっちでやる
+        // 直交投影変換行列 (一緒にscale等も計算)
         const GLfloat *const size(window->getSize());
         const GLfloat scale(window->getScale() * 2.0f);
-        const Matrix scaling(Matrix::scale(scale / size[0], scale / size[1], 1.0f));
+        const GLfloat w(size[0] / scale), h(size[1] / scale);
+        const Matrix projection(Matrix::orthogonal(-w, w, -h, h, 1.0f, 10.0f));
 
         // translate matrix
-        const GLfloat *const position(window->getLocation());
-        const Matrix translation(Matrix::translate(position[0], position[1], 0.0f));
+        const GLfloat *const location(window->getLocation());
+        const Matrix model(Matrix::translate(location[0], location[1], 0.0f));
 
-        // model transformation matrix
-        const Matrix model(translation * scaling);
-
-        const Matrix view(Matrix::lookat(0.0f, 0.0f, 0.0f, -1.0f, -1.0f, -1.0f, 0.0f, 1.0f, 0.0f));
+        const Matrix view(Matrix::lookat(3.0f, 4.0f, 5.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f));
         const Matrix modelview(view * model);
 
 
 
         // uniform 変数に値を設定
+        glUniformMatrix4fv(projectionLoc, 1, GL_FALSE, projection.data());
         glUniformMatrix4fv(modelviewLoc, 1, GL_FALSE, modelview.data());
 
 
