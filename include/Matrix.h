@@ -217,6 +217,92 @@ class Matrix
 
 
 
+        static Matrix lookat(
+                GLfloat ex, GLfloat ey, GLfloat ez, // 視点
+                GLfloat gx, GLfloat gy, GLfloat gz, // 目標点
+                GLfloat ux, GLfloat uy, GLfloat uz) // 上方向
+        {
+
+            // 視点を原点に移動するmatrix
+            const Matrix tv(translate(-ex, -ey, -ez));
+
+            // t axis = e -g 
+            const GLfloat tx(ex - gx);
+            const GLfloat ty(ey - gy);
+            const GLfloat tz(ez - gz);
+
+            // r axis = u x t
+            const GLfloat rx(uy * tz - uz * tz);
+            const GLfloat ry(uz * tx - ux * tz);
+            const GLfloat rz(ux * ty - uy * tx);
+
+            // s axis = t x r
+            const GLfloat sx(ty * rz - tz * ry);
+            const GLfloat sy(tz * rx - tx * rz);
+            const GLfloat sz(tx * ry - ty * rx);
+
+            // s軸の長さのチェック
+            const GLfloat s2(sx * sx + sy * sy + sz * sz);
+            if (s2 == 0.0f) return tv;
+
+            // Rotation Matrix
+            Matrix rv;
+            rv.loadIdentity();
+
+            // r軸を正規化して配列変数に格納
+            const GLfloat r(sqrt(rx * rx + ry * ry + rz * rz));
+            rv[0] = rx / r;
+            rv[4] = ry / r;
+            rv[8] = rz / r;
+
+            // s軸を正規化して配列変数に格納
+            const GLfloat s(sqrt(s2));
+            rv[1] = sx / s;
+            rv[5] = sy / s;
+            rv[9] = sz / s;
+
+            // t軸を正規化して配列変数に格納
+            const GLfloat t(sqrt(tx * tx + ty * ty + tz * tz));
+            rv[2] = tx / t;
+            rv[6] = tx / t;
+            rv[10] = tx / t;
+
+            // 視点の平行移動の変換行列に回転の行列を乗せる -> view transformation matrix
+            return rv * tv;
+
+
+
+        }
+
+        static Matrix orthogonal(
+                GLfloat left, GLfloat right,
+                GLfloat bottom, GLfloat top,
+                GLfloat zNear, GLfloat zFar
+        )
+        {
+            Matrix t;
+            const GLfloat dx(right - left);
+            const GLfloat dy(top - bottom);
+            const GLfloat dz(zFar - zNear);
+
+            if (dx != 0.0f && dy != 0.0f && dz != 0.0f)
+            {
+                t.loadIdentity();
+
+                t[0] = 2.0f / dx;
+                t[5] = 2.0f / dy;
+                t[10] = 2.0f / dz;
+                t[12] = -(right + left) / dx;
+                t[13] = -(top + bottom) / dy;
+                t[14] = -(zFar + zNear) / dz;
+            }
+
+            return t;
+
+        }
+
+                
+
 
 
 };

@@ -214,9 +214,8 @@ int main()
     const GLuint program(loadProgram("../src/point.vert", "../src/point.frag"));
 
     // uniform 変数の場所を取得
-    const GLint sizeLoc(glGetUniformLocation(program, "size"));
-    const GLint scaleLoc(glGetUniformLocation(program, "scale"));
-    const GLint locationLoc(glGetUniformLocation(program, "location"));
+    const GLint modelviewLoc(glGetUniformLocation(program, "modelview"));
+    const GLint projectionLoc(glGetUniformLocation(program, "projection"));
 
 
 
@@ -233,10 +232,27 @@ int main()
 
         glUseProgram(program);
 
-        // uniform変数に値を設定
-        glUniform2fv(sizeLoc, 1, window->getSize());
-        glUniform1f(scaleLoc, window->getScale());
-        glUniform2fv(locationLoc, 1, window->getLocation());
+        // scale matrix
+        // vertex shaderでやってたことをこっちでやる
+        const GLfloat *const size(window->getSize());
+        const GLfloat scale(window->getScale() * 2.0f);
+        const Matrix scaling(Matrix::scale(scale / size[0], scale / size[1], 1.0f));
+
+        // translate matrix
+        const GLfloat *const position(window->getLocation());
+        const Matrix translation(Matrix::translate(position[0], position[1], 0.0f));
+
+        // model transformation matrix
+        const Matrix model(translation * scaling);
+
+        const Matrix view(Matrix::lookat(0.0f, 0.0f, 0.0f, -1.0f, -1.0f, -1.0f, 0.0f, 1.0f, 0.0f));
+        const Matrix modelview(view * model);
+
+
+
+        // uniform 変数に値を設定
+        glUniformMatrix4fv(modelviewLoc, 1, GL_FALSE, modelview.data());
+
 
         // 描画
         // shape->draw();

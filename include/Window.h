@@ -110,7 +110,6 @@ class Window
                 glfwWaitEvents();
             else{
                 glfwPollEvents();
-                std::cout << "poll" << std::endl;
             }
 
 
