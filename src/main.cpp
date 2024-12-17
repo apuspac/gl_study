@@ -159,44 +159,58 @@ GLuint loadProgram(const char *vert, const char *frag)
 }
 
 
-constexpr Object::Vertex cubeVertex[] =
+constexpr Object::Vertex solidCubeVertex[] =
 {
-    {-1.0f, -1.0f, -1.0f, 0.0f, 0.0f, 0.0f},
-    {-1.0f, -1.0f, 1.0f,  0.0f, 0.0f, 0.8f},
-    {-1.0f, 1.0f, 1.0f,   0.0f, 0.8f, 0.0f},
-    {-1.0f, 1.0f, -1.0f,  0.0f, 0.8f, 0.8f},
-    {1.0f,  1.0f, -1.0f,   0.8f, 0.0f, 0.0f},
-    {1.0f, -1.0f, -1.0f,  0.8f, 0.0f, 0.8f},
-    {1.0f, -1.0f, 1.0f,   0.8f, 0.8f, 0.0f},
-    {1.0f, 1.0f, 1.0f,    0.8f, 0.8f, 0.8f},
+  // 左
+  { -1.0f, -1.0f, -1.0f,  0.1f,  0.8f,  0.1f },
+  { -1.0f, -1.0f,  1.0f,  0.1f,  0.8f,  0.1f },
+  { -1.0f,  1.0f,  1.0f,  0.1f,  0.8f,  0.1f },
+  { -1.0f,  1.0f, -1.0f,  0.1f,  0.8f,  0.1f },
+
+  // 裏
+  {  1.0f, -1.0f, -1.0f,  0.8f,  0.1f,  0.8f },
+  { -1.0f, -1.0f, -1.0f,  0.8f,  0.1f,  0.8f },
+  { -1.0f,  1.0f, -1.0f,  0.8f,  0.1f,  0.8f },
+  {  1.0f,  1.0f, -1.0f,  0.8f,  0.1f,  0.8f },
+
+  // 下
+  { -1.0f, -1.0f, -1.0f,  0.1f,  0.8f,  0.8f },
+  {  1.0f, -1.0f, -1.0f,  0.1f,  0.8f,  0.8f },
+  {  1.0f, -1.0f,  1.0f,  0.1f,  0.8f,  0.8f },
+  { -1.0f, -1.0f,  1.0f,  0.1f,  0.8f,  0.8f },
+
+  // 右
+  {  1.0f, -1.0f,  1.0f,  0.1f,  0.1f,  0.8f },
+  {  1.0f, -1.0f, -1.0f,  0.1f,  0.1f,  0.8f },
+  {  1.0f,  1.0f, -1.0f,  0.1f,  0.1f,  0.8f },
+  {  1.0f,  1.0f,  1.0f,  0.1f,  0.1f,  0.8f },
+
+  // 上
+  { -1.0f,  1.0f, -1.0f,  0.8f,  0.1f,  0.1f },
+  { -1.0f,  1.0f,  1.0f,  0.8f,  0.1f,  0.1f },
+  {  1.0f,  1.0f,  1.0f,  0.8f,  0.1f,  0.1f },
+  {  1.0f,  1.0f, -1.0f,  0.8f,  0.1f,  0.1f },
+
+  // 前
+  { -1.0f, -1.0f,  1.0f,  0.8f,  0.8f,  0.1f },
+  {  1.0f, -1.0f,  1.0f,  0.8f,  0.8f,  0.1f },
+  {  1.0f,  1.0f,  1.0f,  0.8f,  0.8f,  0.1f },
+  { -1.0f,  1.0f,  1.0f,  0.8f,  0.8f,  0.1f }
 };
 
-constexpr GLuint wireCubeIndex[] =
-{
-    1, 0,
-    2, 7,
-    3, 0,
-    4, 7,
-    5, 0,
-    6, 7,
-    1, 2,
-    2, 3,
-    3, 4,
-    4, 5,
-    5, 6,
-    6, 1,
-};
+
+
 
 // 六面体の面を塗りつぶす三角形の頂点index
 // 指定する順番で法線の方向決まったりしないのかな。
 constexpr GLuint solidCubeIndex[] =
 {
     0, 1, 2, 0, 2, 3,
-    0, 3, 4, 0, 4, 5,
-    0, 5, 6, 0, 6, 1,
-    7, 6, 5, 7, 5, 4,
-    7, 4, 3, 7, 3, 2, 
-    7, 2, 1, 7, 1, 6
+    4, 5, 6, 4, 6, 7,
+    8, 9, 10, 8, 10, 11,
+    12, 13, 14, 12, 14, 15,
+    16, 17, 18, 16, 18, 19, 
+    20, 21, 22, 20, 22,23 
 };
 
 
@@ -247,11 +261,7 @@ int main()
 
 
 
-    // std::unique_ptr<const Shape> shape(new Shape(2, 4, rectangleVertex));
-    // std::unique_ptr<const Shape> shape(new Shape(2, 4, rectangleVertex2));
-    // std::unique_ptr<const Shape> shape(new Shape(3, 12, octahedronVertex));
-    // std::unique_ptr<const Shape> shape(new ShapeIndex(3, 8, cubeVertex, 24, wireCubeIndex));
-    std::unique_ptr<const Shape> shape(new SolidShapeIndex(3, 8, cubeVertex, 36, solidCubeIndex));
+    std::unique_ptr<const Shape> shape(new SolidShapeIndex(3, 24, solidCubeVertex, 36, solidCubeIndex));
 
 
 
