@@ -11,6 +11,7 @@
 #include "Shape.h"
 #include "ShapeIndex.h"
 #include "SolidShapeIndex.h"
+#include "SolidShape.h"
 
 // shader objectrのコンパイル結果の表示
 GLboolean printShaderInfoLog(GLuint shader, const char *str)
@@ -165,11 +166,15 @@ constexpr Object::Vertex solidCubeVertex[] =
   { -1.0f, -1.0f, -1.0f,  0.1f,  0.8f,  0.1f },
   { -1.0f, -1.0f,  1.0f,  0.1f,  0.8f,  0.1f },
   { -1.0f,  1.0f,  1.0f,  0.1f,  0.8f,  0.1f },
+  { -1.0f, -1.0f, -1.0f,  0.1f,  0.8f,  0.1f },
+  { -1.0f,  1.0f,  1.0f,  0.1f,  0.8f,  0.1f },
   { -1.0f,  1.0f, -1.0f,  0.1f,  0.8f,  0.1f },
 
   // 裏
   {  1.0f, -1.0f, -1.0f,  0.8f,  0.1f,  0.8f },
   { -1.0f, -1.0f, -1.0f,  0.8f,  0.1f,  0.8f },
+  { -1.0f,  1.0f, -1.0f,  0.8f,  0.1f,  0.8f },
+  {  1.0f, -1.0f, -1.0f,  0.8f,  0.1f,  0.8f },
   { -1.0f,  1.0f, -1.0f,  0.8f,  0.1f,  0.8f },
   {  1.0f,  1.0f, -1.0f,  0.8f,  0.1f,  0.8f },
 
@@ -177,11 +182,15 @@ constexpr Object::Vertex solidCubeVertex[] =
   { -1.0f, -1.0f, -1.0f,  0.1f,  0.8f,  0.8f },
   {  1.0f, -1.0f, -1.0f,  0.1f,  0.8f,  0.8f },
   {  1.0f, -1.0f,  1.0f,  0.1f,  0.8f,  0.8f },
+  { -1.0f, -1.0f, -1.0f,  0.1f,  0.8f,  0.8f },
+  {  1.0f, -1.0f,  1.0f,  0.1f,  0.8f,  0.8f },
   { -1.0f, -1.0f,  1.0f,  0.1f,  0.8f,  0.8f },
 
   // 右
   {  1.0f, -1.0f,  1.0f,  0.1f,  0.1f,  0.8f },
   {  1.0f, -1.0f, -1.0f,  0.1f,  0.1f,  0.8f },
+  {  1.0f,  1.0f, -1.0f,  0.1f,  0.1f,  0.8f },
+  {  1.0f, -1.0f,  1.0f,  0.1f,  0.1f,  0.8f },
   {  1.0f,  1.0f, -1.0f,  0.1f,  0.1f,  0.8f },
   {  1.0f,  1.0f,  1.0f,  0.1f,  0.1f,  0.8f },
 
@@ -189,11 +198,15 @@ constexpr Object::Vertex solidCubeVertex[] =
   { -1.0f,  1.0f, -1.0f,  0.8f,  0.1f,  0.1f },
   { -1.0f,  1.0f,  1.0f,  0.8f,  0.1f,  0.1f },
   {  1.0f,  1.0f,  1.0f,  0.8f,  0.1f,  0.1f },
+  { -1.0f,  1.0f, -1.0f,  0.8f,  0.1f,  0.1f },
+  {  1.0f,  1.0f,  1.0f,  0.8f,  0.1f,  0.1f },
   {  1.0f,  1.0f, -1.0f,  0.8f,  0.1f,  0.1f },
 
   // 前
   { -1.0f, -1.0f,  1.0f,  0.8f,  0.8f,  0.1f },
   {  1.0f, -1.0f,  1.0f,  0.8f,  0.8f,  0.1f },
+  {  1.0f,  1.0f,  1.0f,  0.8f,  0.8f,  0.1f },
+  { -1.0f, -1.0f,  1.0f,  0.8f,  0.8f,  0.1f },
   {  1.0f,  1.0f,  1.0f,  0.8f,  0.8f,  0.1f },
   { -1.0f,  1.0f,  1.0f,  0.8f,  0.8f,  0.1f }
 };
@@ -205,12 +218,18 @@ constexpr Object::Vertex solidCubeVertex[] =
 // 指定する順番で法線の方向決まったりしないのかな。
 constexpr GLuint solidCubeIndex[] =
 {
-    0, 1, 2, 0, 2, 3,
-    4, 5, 6, 4, 6, 7,
-    8, 9, 10, 8, 10, 11,
-    12, 13, 14, 12, 14, 15,
-    16, 17, 18, 16, 18, 19, 
-    20, 21, 22, 20, 22,23 
+    // 0, 1, 2, 0, 2, 3,
+    // 4, 5, 6, 4, 6, 7,
+    // 8, 9, 10, 8, 10, 11,
+    // 12, 13, 14, 12, 14, 15,
+    // 16, 17, 18, 16, 18, 19, 
+    // 20, 21, 22, 20, 22,23 
+   0,  1,  2,  3,  4,  5, // 左
+   6,  7,  8,  9, 10, 11, // 裏
+  12, 13, 14, 15, 16, 17, // 下
+  18, 19, 20, 21, 22, 23, // 右
+  24, 25, 26, 27, 28, 29, // 上
+  30, 31, 32, 33, 34, 35  // 前
 };
 
 
@@ -261,7 +280,7 @@ int main()
 
 
 
-    std::unique_ptr<const Shape> shape(new SolidShapeIndex(3, 24, solidCubeVertex, 36, solidCubeIndex));
+    std::unique_ptr<const Shape> shape(new SolidShapeIndex(3, 36, solidCubeVertex, 36, solidCubeIndex));
 
 
 
