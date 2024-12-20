@@ -25,8 +25,10 @@ void main()
 
     // 鏡面反射光の計算
     vec3 V = -normalize(P.xyz);
-    vec3 R = reflect(-L, N);
-    Ispec = pow(max(dot(R, V), 0.0), Kshi) * Kspec * Lspec;
+    // vec3 R = reflect(-L, N);
+    // Ispec = pow(max(dot(R, V), 0.0), Kshi) * Kspec * Lspec;
+    vec3 H = normalize(L + V);
+    Ispec = pow(max(dot(N, H), 0.0), Kshi) * Kspec * Lspec;
 
     gl_Position = projection * P;
 }
