@@ -1,5 +1,5 @@
 #version 330 core
-in vec4 vertex_color;
+in vec3 Idiff;
 out vec4 fragColor;
 
 void main()
@@ -8,7 +8,7 @@ void main()
     // vec3 color = vec3(0.0);
     // color = vec3(0.0, 1.0, 0.0);
     // fragColor = vec4(color, 1.0);
-    fragColor = vertex_color;
+    fragColor = vec4(Idiff, 1.0);
 }
 
 
