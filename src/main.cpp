@@ -286,6 +286,7 @@ int main()
     // uniform 変数の場所を取得
     const GLint modelviewLoc(glGetUniformLocation(program, "modelview"));
     const GLint projectionLoc(glGetUniformLocation(program, "projection"));
+    const GLint normalMatrixLoc(glGetUniformLocation(program, "normalMatrix"));
 
 
     // shape の 作成
@@ -328,10 +329,15 @@ int main()
         const Matrix modelview(view * model);
 
 
+        // normal transformation matrix(法線ベクトルの変換行列)
+        GLfloat normalMatrix[9];
+        modelview.getNormalMatrix(normalMatrix);
+
 
         // uniform 変数に値を設定
         glUniformMatrix4fv(projectionLoc, 1, GL_FALSE, projection.data());
         glUniformMatrix4fv(modelviewLoc, 1, GL_FALSE, modelview.data());
+        glUniformMatrix3fv(normalMatrixLoc, 1, GL_FALSE, normalMatrix);
 
 
         // 描画
@@ -342,6 +348,7 @@ int main()
 
         // uniform 変数に値を設定
         glUniformMatrix4fv(modelviewLoc, 1, GL_FALSE, modelview1.data());
+        glUniformMatrix3fv(normalMatrixLoc, 1, GL_FALSE, normalMatrix);
         // 2回目の描画
         shape->draw();
 
