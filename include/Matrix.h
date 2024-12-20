@@ -190,6 +190,12 @@ class Matrix
             return t;
         }
 
+        Matrix& operator=(const Matrix &m)
+        {
+            std::copy(m.matrix, m.matrix + 16, matrix);
+            return *this;
+        }
+
         // 行列の積
         Matrix operator*(const Matrix &m) const
         {

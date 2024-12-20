@@ -18,12 +18,13 @@ class Window
     GLfloat location[2];
 
     int keyStatus;
+    int spaceStatus;
 
 
     public:
         Window(int width = 640, int height = 480, const char *title = "hello!")
             : window(glfwCreateWindow(width, height, title, nullptr, nullptr))
-            , scale(100.0f), location{ 0.0f, 0.0f }, keyStatus(GLFW_RELEASE)
+            , scale(100.0f), location{ 0.0f, 0.0f }, keyStatus(GLFW_RELEASE), spaceStatus(GLFW_RELEASE)
             {
                 if (!window){
                     std::cerr << "can't init glew" << std::endl;
@@ -106,11 +107,16 @@ class Window
         {
 
             // keystatusによってpollかwaitかを変える。
-            if (keyStatus == GLFW_RELEASE)
-                glfwWaitEvents();
-            else{
-                glfwPollEvents();
-            }
+            // if (keyStatus == GLFW_RELEASE)
+            //     glfwWaitEvents();
+            // else{
+            //     glfwPollEvents();
+            // }
+            glfwPollEvents();
+
+            
+
+
 
 
             if (glfwGetMouseButton (window, GLFW_MOUSE_BUTTON_1) != GLFW_RELEASE)
@@ -222,8 +228,24 @@ class Window
 
             if (instance != nullptr){
                 instance->keyStatus = action;
+
+                int status = glfwGetKey(window, GLFW_KEY_SPACE);
+                if (status == GLFW_PRESS)
+                {
+                    if (instance -> spaceStatus == GLFW_RELEASE)
+                    {
+                        instance->spaceStatus = GLFW_PRESS;
+                    }else{
+                        instance->spaceStatus = GLFW_RELEASE;
+                    }
+                }
             }
 
+        }
+
+        const int getSpaceStatus() const
+        {
+            return spaceStatus;
         }
 
 

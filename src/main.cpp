@@ -279,8 +279,12 @@ int main()
     const GLint projectionLoc(glGetUniformLocation(program, "projection"));
 
 
-
+    // shape の 作成
     std::unique_ptr<const Shape> shape(new SolidShapeIndex(3, 36, solidCubeVertex, 36, solidCubeIndex));
+
+    // timer 
+    glfwSetTime(0.0);
+    float rotate_time = 0.0;
 
 
 
@@ -292,7 +296,7 @@ int main()
 
         glUseProgram(program);
 
-        // 直交投影変換行列 (一緒にscale等も計算)
+        // 透視投影変換行列
         const GLfloat *const size(window->getSize());
         const GLfloat fovy(window->getScale() * 0.01f);
         const GLfloat aspect(size[0] / size[1]);
@@ -300,7 +304,16 @@ int main()
 
         // translate matrix
         const GLfloat *const location(window->getLocation());
-        const Matrix model(Matrix::translate(location[0], location[1], 0.0f));
+
+
+        if (window->getSpaceStatus() == GLFW_RELEASE){
+            rotate_time = glfwGetTime();
+        }
+        Matrix rotate_matrix = (Matrix::rotate(static_cast<GLfloat>(rotate_time), 0.0f, 1.0f, 0.0f));
+
+        
+
+        const Matrix model(Matrix::translate(location[0], location[1], 0.0f) * rotate_matrix);
 
         const Matrix view(Matrix::lookat(3.0f, 4.0f, 5.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f));
         const Matrix modelview(view * model);
