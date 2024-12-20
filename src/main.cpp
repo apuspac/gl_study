@@ -268,8 +268,16 @@ int main()
     // 背景色
     glClearColor(1.0f, 1.0f, 1.0f, 0.0f);
 
-    // viewportはwindowのresizeで設定。
-    // glViewport(100, 50, 300, 300);
+    // backface culling(裏面消去 背面カリング)
+    glFrontFace(GL_CCW); // 反時計周りを表面とする(default)
+    glCullFace(GL_BACK); // backを削除(default)
+    glEnable(GL_CULL_FACE);
+
+    // depth buffer(z-buffer)
+    glClearDepth(1.0);  // bufferの設定値 (default)
+    glDepthFunc(GL_LESS); // polygonの深度がbufferの深度より小さければ表示 (default)
+    glEnable(GL_DEPTH_TEST);
+
 
     // program objectを作成
     const GLuint program(loadProgram("../src/point.vert", "../src/point.frag"));
@@ -292,7 +300,7 @@ int main()
     while(window->shouldClose())
     {
         // 画面のクリア
-        glClear(GL_COLOR_BUFFER_BIT);
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
         glUseProgram(program);
 
@@ -326,6 +334,14 @@ int main()
 
 
         // 描画
+        shape->draw();
+
+        // 二つ目の図形のmodelview変換行列
+        const Matrix modelview1(modelview * Matrix::translate(0.0f, 0.0f, 3.0f));
+
+        // uniform 変数に値を設定
+        glUniformMatrix4fv(modelviewLoc, 1, GL_FALSE, modelview1.data());
+        // 2回目の描画
         shape->draw();
 
 
