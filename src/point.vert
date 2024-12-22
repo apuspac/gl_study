@@ -7,10 +7,13 @@ uniform vec4 Lpos[Lcount]; // 光源
 uniform vec3 Lamb[Lcount]; // 環境光
 uniform vec3 Ldiff[Lcount]; // 光源の拡散反射光 diffuse reflection 
 uniform vec3 Lspec[Lcount]; // 光源の共面反射光 specular reflection
-const vec3 Kamb = vec3(0.6, 0.6, 0.2); // 環境光反射係数
-const vec3 Kdiff = vec3(0.6, 0.6, 0.2); // 物体の反射係数
-const vec3 Kspec = vec3(0.3, 0.3, 0.3); // 物体の鏡面反射係数
-const float Kshi = 30.0; // 輝き係数
+layout (std140) uniform Material
+{
+    vec3 Kamb; // 環境光反射係数
+    vec3 Kdiff; // 物体の拡散反射係数
+    vec3 Kspec; // 物体の鏡面反射係数
+    float Kshi; // 輝き係数
+};
 in vec4 position;
 in vec3 normal;
 out vec3 Idiff;

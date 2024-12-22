@@ -14,6 +14,8 @@
 #include "ShapeIndex.h"
 #include "SolidShapeIndex.h"
 #include "SolidShape.h"
+#include "Uniform.h"
+#include "Material.h"
 
 // shader objectrのコンパイル結果の表示
 GLboolean printShaderInfoLog(GLuint shader, const char *str)
@@ -295,6 +297,12 @@ int main()
     const GLint LdiffLoc(glGetUniformLocation(program, "Ldiff"));
     const GLint LspecLoc(glGetUniformLocation(program, "Lspec"));
 
+    // uniform blockの場所を取得
+    const GLint materialLoc(glGetUniformBlockIndex(program, "Material"));
+
+    // uniform block をbounding pointの0に結びつける
+    glUniformBlockBinding(program, materialLoc, 0);
+
     // 球の分割数
     const int slices(16), stacks(8);
     // 頂点属性を作る
@@ -367,6 +375,17 @@ int main()
     static constexpr GLfloat Ldiff[] = { 1.0f, 0.5f, 0.5f, 0.9f, 0.9f, 0.9f  };
     static constexpr GLfloat Lspec[] = { 1.0f, 0.5f, 0.5f, 0.9f, 0.9f, 0.9f  };
 
+    // 色のデータ
+    static constexpr Material color[] = 
+    {
+        // ambient          diffuse           specular          shininess
+        { 0.6f, 0.6f, 0.2f, 0.6f, 0.6f, 0.2f, 0.3f, 0.3f, 0.3f, 30.0f },
+        { 0.1f, 0.1f, 0.5f, 0.1f, 0.1f, 0.5f, 0.4f, 0.4f, 0.4f, 60.0f },
+
+    };
+
+    const Uniform<Material> material(color, 2);
+
 
 
 
@@ -422,7 +441,10 @@ int main()
         }
 
 
+
         // 描画
+        // uniform blockに値を設定
+        material.select(0, 0);
         shape->draw();
 
         // 二つ目の図形のmodelview変換行列
@@ -431,7 +453,10 @@ int main()
         // uniform 変数に値を設定
         glUniformMatrix4fv(modelviewLoc, 1, GL_FALSE, modelview1.data());
         glUniformMatrix3fv(normalMatrixLoc, 1, GL_FALSE, normalMatrix);
+
         // 2回目の描画
+        // materialを変える
+        material.select(0, 1);
         shape->draw();
 
 
