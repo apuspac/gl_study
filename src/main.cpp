@@ -9,6 +9,7 @@
 #include <GLFW/glfw3.h>
 #include "Window.h"
 #include "Matrix.h"
+#include "Vector.h"
 #include "Shape.h"
 #include "ShapeIndex.h"
 #include "SolidShapeIndex.h"
@@ -288,11 +289,17 @@ int main()
     const GLint modelviewLoc(glGetUniformLocation(program, "modelview"));
     const GLint projectionLoc(glGetUniformLocation(program, "projection"));
     const GLint normalMatrixLoc(glGetUniformLocation(program, "normalMatrix"));
+    const GLint TimeLoc(glGetUniformLocation(program, "u_time"));
+    const GLint LposLoc(glGetUniformLocation(program, "Lpos"));
+    const GLint LambLoc(glGetUniformLocation(program, "Lamb"));
+    const GLint LdiffLoc(glGetUniformLocation(program, "Ldiff"));
+    const GLint LspecLoc(glGetUniformLocation(program, "Lspec"));
 
     // 球の分割数
     const int slices(16), stacks(8);
     // 頂点属性を作る
     std::vector<Object::Vertex> solidSphereVertex;
+
 
     // ようは、equirectangular -> unit sphere xyz
     for (int j = 0; j <= stacks; ++j)
@@ -338,6 +345,11 @@ int main()
     }
 
 
+    // timer 
+    glfwSetTime(0.0);
+    float u_time = 0.0;
+    float rotate_time = 0.0;
+
 
     // shape の 作成
     // std::unique_ptr<const Shape> shape(new SolidShapeIndex(3, 36, solidCubeVertex, 36, solidCubeIndex));
@@ -348,9 +360,13 @@ int main()
                 static_cast<GLsizei>(solidSphereVertex.size()), solidSphereVertex.data(),
                 static_cast<GLsizei>(solidSphereIndex.size()),  solidSphereIndex.data()));
 
-    // timer 
-    glfwSetTime(0.0);
-    float rotate_time = 0.0;
+    // 光源のデータ
+    static constexpr int Lcount(2);
+    static constexpr Vector Lpos[] = { 0.0f, 0.0f, 5.0f, 1.0f, 8.0f, 0.0f, 0.0f, 1.0f };
+    static constexpr GLfloat Lamb[] = { 0.2f, 0.1f, -0.1f, 0.1f, 0.1f, 0.1f  };
+    static constexpr GLfloat Ldiff[] = { 1.0f, 0.5f, 0.5f, 0.9f, 0.9f, 0.9f  };
+    static constexpr GLfloat Lspec[] = { 1.0f, 0.5f, 0.5f, 0.9f, 0.9f, 0.9f  };
+
 
 
 
@@ -375,6 +391,7 @@ int main()
         if (window->getSpaceStatus() == GLFW_RELEASE){
             rotate_time = glfwGetTime();
         }
+        u_time = glfwGetTime();
         Matrix rotate_matrix = (Matrix::rotate(static_cast<GLfloat>(rotate_time), 0.0f, 1.0f, 0.0f));
 
         
@@ -394,6 +411,15 @@ int main()
         glUniformMatrix4fv(projectionLoc, 1, GL_FALSE, projection.data());
         glUniformMatrix4fv(modelviewLoc, 1, GL_FALSE, modelview.data());
         glUniformMatrix3fv(normalMatrixLoc, 1, GL_FALSE, normalMatrix);
+        glUniform1f(TimeLoc, u_time);
+
+        for (int i = 0; i < Lcount; ++i)
+        {
+            glUniform4fv(LposLoc + i, 1, (view * Lpos[i]).data());
+            glUniform3fv(LambLoc, Lcount, Lamb);
+            glUniform3fv(LdiffLoc, Lcount, Ldiff);
+            glUniform3fv(LspecLoc, Lcount, Lspec);
+        }
 
 
         // 描画
