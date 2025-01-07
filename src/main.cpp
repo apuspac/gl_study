@@ -254,8 +254,8 @@ int main()
 
     // backface culling, depth buffer
     glClearColor(1.0f, 1.0f, 1.0f, 0.0f);
-    glEnable(GL_CULL_FACE);
-    glEnable(GL_DEPTH_TEST);
+    // glEnable(GL_CULL_FACE);
+    // glEnable(GL_DEPTH_TEST);
 
 
     // prepare shaders
@@ -280,16 +280,22 @@ int main()
         -0.5f,  0.5f, 0.0f,   1.0f, 1.0f, 0.0f,   0.0f, 1.0f    // top left 
     };
 
-    float vertices[] = {
-         0.5f,  0.5f, 0.0f,  // top right
-         0.5f, -0.5f, 0.0f,  // bottom right
-        -0.5f, -0.5f, 0.0f,  // bottom left
-        -0.5f,  0.5f, 0.0f   // top left
-    };
+    // float vertices[] = {
+    //      0.5f,  0.5f, 0.0f,  // top right
+    //      0.5f, -0.5f, 0.0f,  // bottom right
+    //     -0.5f, -0.5f, 0.0f,  // bottom left
+    //     -0.5f,  0.5f, 0.0f   // top left
+    // };
 
-    unsigned int indices[] = {
-        0, 3, 1,
-        3, 2, 1
+    // カリングを考慮するとこの順番
+    // unsigned int indices[] = {
+    //     0, 3, 1,
+    //     3, 2, 1
+    // };
+    unsigned int indices[] = {  
+        0, 1, 3, // first triangle
+        1, 2, 3  // second triangle
+
     };
 
     // VBOがdeta本体、VAOはVBOのbindするとかstrideの設定を持ってて、
@@ -306,8 +312,8 @@ int main()
     glBindBuffer(GL_ARRAY_BUFFER, VBO);
     glBufferData(
             GL_ARRAY_BUFFER,
-            sizeof(vertices),
-            vertices,
+            sizeof(vertices_tex),
+            vertices_tex,
             GL_STATIC_DRAW
     );
 
@@ -323,17 +329,41 @@ int main()
     );
 
     // attribute(.vertとかのin変数で使えるような)の set
-    glVertexAttribPointer(0, glm::vec3::length(), GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void *)0);
+    // vertex
+    glVertexAttribPointer(0, glm::vec3::length(), GL_FLOAT, GL_FALSE, 8  * sizeof(float), (void *)0);
     glEnableVertexAttribArray(0);
 
-    glBindBuffer(GL_ARRAY_BUFFER, 0);
+    // color
+    glVertexAttribPointer(
+        1, 
+        glm::vec3::length(), 
+        GL_FLOAT, 
+        GL_FALSE, 
+        8 * sizeof(float), 
+        (void *)(3 * sizeof(float))
+    );
+    glEnableVertexAttribArray(1);
+
+    // texture
+    glVertexAttribPointer(
+        2, 
+        glm::vec2::length(), 
+        GL_FLOAT, GL_FALSE, 
+        8 * sizeof(float), 
+        // 最初のcomponentの位置(offset) ここではvert3+coler3で6
+        (void *)(6 * sizeof(float))  
+    );
+    glEnableVertexAttribArray(2);
+
+    load_texture("../asset/container.jpg");
+
+
+
 
     glBindVertexArray(0);
 
 
 
-    load_texture("../asset/container.jpg");
-    // glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex) + 2, (void *)offsetof(Vertex, TexCoords));
 
 
     glfwSetTime(0.0);
