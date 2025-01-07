@@ -212,7 +212,7 @@ const aiScene *loadAsset(const std::string& path)
 
 
 
-void load_texture(const std::string tex)
+unsigned int load_texture(const std::string tex)
 {
     unsigned int texture;
     glGenTextures(1, &texture);
@@ -225,12 +225,12 @@ void load_texture(const std::string tex)
 
     // load and generate texture
     int width, height, nrChannels;
-    unsigned char *data = stbi_load(tex.c_str(), &width, &height, &nrChannels, 0);
+    unsigned char *data = stbi_load(tex.c_str(), &width, &height, &nrChannels, STBI_rgb_alpha);
     
 
     if(data)
     {
-        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
         glGenerateMipmap(GL_TEXTURE_2D);
     }
     else 
@@ -240,6 +240,8 @@ void load_texture(const std::string tex)
     }
 
     stbi_image_free(data);
+
+    return texture;
 }
 
 
@@ -355,7 +357,12 @@ int main()
     );
     glEnableVertexAttribArray(2);
 
-    load_texture("../asset/container.jpg");
+    unsigned int texture1, texture2;
+
+    glActiveTexture(GL_TEXTURE0);
+    texture1 = load_texture("../asset/container.jpg");
+    glActiveTexture(GL_TEXTURE1);
+    texture2 = load_texture("../asset/machu.jpg");
 
 
 
@@ -374,6 +381,11 @@ int main()
     {
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
         glUseProgram(program);
+
+        glActiveTexture(GL_TEXTURE0);
+        glBindTexture(GL_TEXTURE_2D, texture1);
+        glActiveTexture(GL_TEXTURE1);
+        glBindTexture(GL_TEXTURE_2D, texture2);
 
 
         // rotate_time = glfwGetTime();

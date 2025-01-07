@@ -15,5 +15,5 @@ void main()
     // gl_Position = u_projection * u_modelview * vec4(position.xyz, 1.0);
     gl_Position = vec4(position.x * 2.0, position.y, position.z, 1.0);
     vertColor = color;
-    vertTexCoord = texcoord * 2.0;
+    vertTexCoord = texcoord;
 }
