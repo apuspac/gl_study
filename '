@@ -173,7 +173,19 @@ std::shared_ptr<Mesh> Model::processMesh(aiMesh *mesh, const aiScene *scene)
         std::cerr << "Material index is negative." << std::endl;
     }
 
-    std::cout << "loaded_Texture >>> " << std::endl;
+
+
+
+    // for (auto v : vertices)
+    // {
+    //     std::cout << v.Position.x << " " << v.Position.y << " " << v.Position.z << std::endl;
+    // }
+    //
+    // for (auto i : indices)
+    // {
+    //     std::cout << i << std::endl;
+    // }
+    //
     for (auto t : textures)
     {
         std::cout << t.id << " " << t.type << " " << t.path << std::endl;
@@ -184,11 +196,13 @@ std::shared_ptr<Mesh> Model::processMesh(aiMesh *mesh, const aiScene *scene)
 
 std::vector<Texture> Model::loadMaterialTextures(aiMaterial *mat, aiTextureType type, std::string typeName)
 {
+    std::cout << "loadMaterialTextures" << std::endl;
     std::vector<Texture> textures;
     for(unsigned int i = 0; i < mat->GetTextureCount(type); i++)
     {
         aiString str;
         aiReturn error = mat->GetTexture(type, i, &str);
+        std::cout << str.C_Str() << std::endl;
         if (error != aiReturn_SUCCESS)
         {
             std::cerr << "Can't load the texture." << std::endl;
@@ -209,13 +223,17 @@ std::vector<Texture> Model::loadMaterialTextures(aiMaterial *mat, aiTextureType 
 
         if(!skip)
         {
+            std::cout << "loaded" << textures_loaded.size() << std::endl;
             Texture texture;
             texture.id = textureFromFile(str.C_Str(), directory);
             texture.type = typeName;
             texture.path = str.C_Str();
             textures.push_back(texture);
             textures_loaded.push_back(texture);
+
+            std::cout << "texture: " << texture.id << " " << texture.path << std::endl;
         }
+        
     }
 
     return textures;

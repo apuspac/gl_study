@@ -9,12 +9,13 @@
 struct Vertex {
     glm::vec3 Position;
     glm::vec3 Normal;
-    // glm::vec2 TexCoords;
+    glm::vec2 TexCoords;
 };
 
 struct Texture{
     unsigned int id;
     std::string type;
+    std::string path;
 };
     
 
@@ -28,10 +29,9 @@ class Mesh {
     public:
         std::vector<Vertex> vertices;
         std::vector<unsigned int> indices;
-        // std::vector<Texture> textures;
+        std::vector<Texture> textures;
 
-        // Mesh(std::vector<Vertex> vertices, std::vector<unsigned int> indices, std::vector<Texture> textures);
-        Mesh(std::vector<Vertex> vertices, std::vector<unsigned int> indices);
+        Mesh(std::vector<Vertex> vertices, std::vector<unsigned int> indices, std::vector<Texture> textures);
         ~Mesh();
 
         // copy constructor
@@ -46,11 +46,10 @@ class Mesh {
 };
 
 
-// Mesh::Mesh(std::vector<Vertex> vertices, std::vector<unsigned int> indices, std::vector<Texture> textures) {
-Mesh::Mesh(std::vector<Vertex> vertices, std::vector<unsigned int> indices) {
+Mesh::Mesh(std::vector<Vertex> vertices, std::vector<unsigned int> indices, std::vector<Texture> textures) {
     this->vertices = vertices;
     this->indices = indices;
-    // this->textures = textures;
+    this->textures = textures;
 
     setupMesh();
 }
@@ -68,7 +67,7 @@ Mesh::Mesh(const Mesh &other) {
     std::cout << "copy constructor" << std::endl;
     this->vertices = other.vertices;
     this->indices = other.indices;
-    // this->textures = other.textures;
+    this->textures = other.textures;
 
     setupMesh();
 }
@@ -123,9 +122,8 @@ void Mesh::setupMesh() {
     glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, Normal));
 
     // texture coords
-    // glEnableVertexAttribArray(2);
-    // glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, TexCoords));
-    //
+    glEnableVertexAttribArray(2);
+    glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, TexCoords));
 
 
 
@@ -135,9 +133,20 @@ void Mesh::setupMesh() {
 }
 
 void Mesh::Draw() {
+
+
+
+   
+    for(unsigned int i = 0; i < textures.size(); i++) {
+        glActiveTexture(GL_TEXTURE0 + i);
+        glBindTexture(GL_TEXTURE_2D, textures[i].id);
+    }
+
     glBindVertexArray(VAO);
     glDrawElements(GL_TRIANGLES, indices.size(), GL_UNSIGNED_INT, 0);
     glBindVertexArray(0);
+
+    glActiveTexture(GL_TEXTURE0);
 }
 
 

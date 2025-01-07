@@ -15,10 +15,32 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 
-#define STB_IMAGE_IMPLEMENTATION
-#include "stb/stb_image.h"
 
 #include <execinfo.h>
+
+GLenum glCheckError_(const char *file, int line)
+{
+    GLenum errorCode;
+    while ((errorCode = glGetError()) != GL_NO_ERROR)
+    {
+        std::string error;
+        switch (errorCode)
+        {
+            case GL_INVALID_ENUM:                  error = "INVALID_ENUM"; break;
+
+            case GL_INVALID_VALUE:                 error = "INVALID_VALUE"; break;
+            case GL_INVALID_OPERATION:             error = "INVALID_OPERATION"; break;
+            case GL_STACK_OVERFLOW:                error = "STACK_OVERFLOW"; break;
+            case GL_STACK_UNDERFLOW:               error = "STACK_UNDERFLOW"; break;
+            case GL_OUT_OF_MEMORY:                 error = "OUT_OF_MEMORY"; break;
+            case GL_INVALID_FRAMEBUFFER_OPERATION: error = "INVALID_FRAMEBUFFER_OPERATION"; break;
+        }
+        std::cout << error << " | " << file << " (" << line << ")" << std::endl;
+    }
+    return errorCode;
+}
+#define glCheckError() glCheckError_(__FILE__, __LINE__) 
+
 
 
 
@@ -256,139 +278,33 @@ int main()
 
     // backface culling, depth buffer
     glClearColor(1.0f, 1.0f, 1.0f, 0.0f);
-    // glEnable(GL_CULL_FACE);
-    // glEnable(GL_DEPTH_TEST);
+    glEnable(GL_CULL_FACE);
+    glEnable(GL_DEPTH_TEST);
 
 
     // prepare shaders
     const GLuint program(loadProgram("../src/point.vert", "../src/point.frag"));
     
-    const GLint projectionLoc(glGetUniformLocation(program, "projection"));
-    const GLint modelviewLoc(glGetUniformLocation(program, "modelview"));
+    const GLint projectionLoc(glGetUniformLocation(program, "u_projection"));
+    const GLint modelviewLoc(glGetUniformLocation(program, "u_modelview"));
 
 
 
     // Model objModel("../asset/box.obj");
-    // Model objModel("../asset/cookie.obj");
-
-
-
-    ////// texture test
-    float vertices_tex[] = {
-        // positions          // colors           // texture coords
-         0.5f,  0.5f, 0.0f,   1.0f, 0.0f, 0.0f,   1.0f, 1.0f,   // top right
-         0.5f, -0.5f, 0.0f,   0.0f, 1.0f, 0.0f,   1.0f, 0.0f,   // bottom right
-        -0.5f, -0.5f, 0.0f,   0.0f, 0.0f, 1.0f,   0.0f, 0.0f,   // bottom left
-        -0.5f,  0.5f, 0.0f,   1.0f, 1.0f, 0.0f,   0.0f, 1.0f    // top left 
-    };
-
-    // float vertices[] = {
-    //      0.5f,  0.5f, 0.0f,  // top right
-    //      0.5f, -0.5f, 0.0f,  // bottom right
-    //     -0.5f, -0.5f, 0.0f,  // bottom left
-    //     -0.5f,  0.5f, 0.0f   // top left
-    // };
-
-    // カリングを考慮するとこの順番
-    // unsigned int indices[] = {
-    //     0, 3, 1,
-    //     3, 2, 1
-    // };
-    unsigned int indices[] = {  
-        0, 1, 3, // first triangle
-        1, 2, 3  // second triangle
-
-    };
-
-    // VBOがdeta本体、VAOはVBOのbindするとかstrideの設定を持ってて、
-    // 描画するときに毎回呼び出さなきゃいけないものをパッケージングして、
-    // 使いまわしできるようにしたもの。
-    unsigned int VAO;
-    glGenVertexArrays(1, &VAO);
-    glBindVertexArray(VAO);
-
-    unsigned int VBO;
-    glGenBuffers(1, &VBO);
-
-    // copy vertex array in buffer for opengl
-    glBindBuffer(GL_ARRAY_BUFFER, VBO);
-    glBufferData(
-            GL_ARRAY_BUFFER,
-            sizeof(vertices_tex),
-            vertices_tex,
-            GL_STATIC_DRAW
-    );
-
-    unsigned int EBO;
-    glGenBuffers(1, &EBO);
-
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
-    glBufferData(
-            GL_ELEMENT_ARRAY_BUFFER,
-            sizeof(indices),
-            indices,
-            GL_STATIC_DRAW
-    );
-
-    // attribute(.vertとかのin変数で使えるような)の set
-    // vertex
-    glVertexAttribPointer(0, glm::vec3::length(), GL_FLOAT, GL_FALSE, 8  * sizeof(float), (void *)0);
-    glEnableVertexAttribArray(0);
-
-    // color
-    glVertexAttribPointer(
-        1, 
-        glm::vec3::length(), 
-        GL_FLOAT, 
-        GL_FALSE, 
-        8 * sizeof(float), 
-        (void *)(3 * sizeof(float))
-    );
-    glEnableVertexAttribArray(1);
-
-    // texture
-    glVertexAttribPointer(
-        2, 
-        glm::vec2::length(), 
-        GL_FLOAT, GL_FALSE, 
-        8 * sizeof(float), 
-        // 最初のcomponentの位置(offset) ここではvert3+coler3で6
-        (void *)(6 * sizeof(float))  
-    );
-    glEnableVertexAttribArray(2);
-
-    unsigned int texture1, texture2;
-
-    glActiveTexture(GL_TEXTURE0);
-    texture1 = load_texture("../asset/container.jpg");
-    glActiveTexture(GL_TEXTURE1);
-    texture2 = load_texture("../asset/machu.jpg");
-
-
-
-
-    glBindVertexArray(0);
-
-
+    Model objModel("../asset/cookie.obj");
 
 
 
     glfwSetTime(0.0);
     // float u_time = 0.0;
-    // float rotate_time = 0.0;
+    float rotate_time = 0.0;
 
     while(window->shouldClose())
     {
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
         glUseProgram(program);
 
-        glActiveTexture(GL_TEXTURE0);
-        glBindTexture(GL_TEXTURE_2D, texture1);
-        glActiveTexture(GL_TEXTURE1);
-        glBindTexture(GL_TEXTURE_2D, texture2);
-
-
-        // rotate_time = glfwGetTime();
+        rotate_time = glfwGetTime();
 
 
         // 透視投影変換行列
@@ -400,10 +316,10 @@ int main()
 
 
         // translate matrix
-        // const GLfloat *const location(window->getLocation());
+        const GLfloat *const location(window->getLocation());
         glm::mat4 model = glm::mat4(1.0f);
-        // const glm::mat4 rotate_matrix = glm::rotate(model, glm::radians(static_cast<GLfloat>(rotate_time)), glm::vec3(1.0f, 0.0f, 0.0f));
-        // model = glm::translate(model, glm::vec3(location[0], location[1], 0.0)) * rotate_matrix;
+        const glm::mat4 rotate_matrix = glm::rotate(model, glm::radians(static_cast<GLfloat>(rotate_time)), glm::vec3(1.0f, 0.0f, 0.0f));
+        model = glm::translate(model, glm::vec3(location[0], location[1], 0.0)) * rotate_matrix;
 
         const glm::mat4 view = glm::lookAt(
                 glm::vec3(0.0f, 5.0f, 5.0f), // camera position
@@ -416,13 +332,7 @@ int main()
         glUniformMatrix4fv(projectionLoc, 1, GL_FALSE, &projection[0][0]);
         glUniformMatrix4fv(modelviewLoc, 1, GL_FALSE, &modelview[0][0]);
 
-        
-        glBindVertexArray(VAO);
-        glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
-        glBindVertexArray(0);
-
-
-        // objModel.Draw();
+        objModel.Draw();
 
         window->swapBuffers();
         window->eventsLoop();
