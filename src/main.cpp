@@ -211,35 +211,6 @@ const aiScene *loadAsset(const std::string& path)
 }
 
 
-//
-// void printStackTrace() {
-//     constexpr int maxFrames = 100; // スタックフレームの最大数
-//     void* buffer[maxFrames];
-//
-//     
-//     // スタック内の呼び出しアドレスを取得
-//     int numFrames = backtrace(buffer, maxFrames);
-//     
-//     // アドレスを人が読める形式に変換
-//     char** symbols = backtrace_symbols(buffer, numFrames);
-//     if (symbols == nullptr) {
-//
-//         std::cerr << "エラー: スタックシンボルを取得できませんでした。" << std::endl;
-//         return;
-//     }
-//
-//     // スタックトレースをコンソールに出力
-//     std::cout << "スタックトレース:" << std::endl;
-//     for (int i = 0; i < numFrames; ++i) {
-//
-//         std::cout << symbols[i] << std::endl;
-//
-//     }
-//
-//     // シンボル用に割り当てられたメモリを解放
-//     free(symbols);
-// }
-
 
 void load_texture(const std::string tex)
 {
@@ -272,13 +243,6 @@ void load_texture(const std::string tex)
 }
 
 
-float vertices[] = {
-    // positions          // colors           // texture coords
-     0.5f,  0.5f, 0.0f,   1.0f, 0.0f, 0.0f,   1.0f, 1.0f,   // top right
-     0.5f, -0.5f, 0.0f,   0.0f, 1.0f, 0.0f,   1.0f, 0.0f,   // bottom right
-    -0.5f, -0.5f, 0.0f,   0.0f, 0.0f, 1.0f,   0.0f, 0.0f,   // bottom left
-    -0.5f,  0.5f, 0.0f,   1.0f, 1.0f, 0.0f,   0.0f, 1.0f    // top left 
-};
 
 
 int main()
@@ -302,13 +266,73 @@ int main()
 
 
 
-    Model objModel("../asset/box.obj");
+    // Model objModel("../asset/box.obj");
     // Model objModel("../asset/cookie.obj");
-    //
-    // glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex) + 2, (void *)offsetof(Vertex, TexCoords));
-    // glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex) + 2, (void *)offsetof(Vertex, TexCoords));
-    // 
-    // load_texture("../asset/container.jpg");
+
+
+
+    ////// texture test
+    float vertices_tex[] = {
+        // positions          // colors           // texture coords
+         0.5f,  0.5f, 0.0f,   1.0f, 0.0f, 0.0f,   1.0f, 1.0f,   // top right
+         0.5f, -0.5f, 0.0f,   0.0f, 1.0f, 0.0f,   1.0f, 0.0f,   // bottom right
+        -0.5f, -0.5f, 0.0f,   0.0f, 0.0f, 1.0f,   0.0f, 0.0f,   // bottom left
+        -0.5f,  0.5f, 0.0f,   1.0f, 1.0f, 0.0f,   0.0f, 1.0f    // top left 
+    };
+
+    float vertices[] = {
+         0.5f,  0.5f, 0.0f,  // top right
+         0.5f, -0.5f, 0.0f,  // bottom right
+        -0.5f, -0.5f, 0.0f,  // bottom left
+        -0.5f,  0.5f, 0.0f   // top left
+    };
+
+    unsigned int indices[] = {
+        0, 3, 1,
+        3, 2, 1
+    };
+
+    // VBOがdeta本体、VAOはVBOのbindするとかstrideの設定を持ってて、
+    // 描画するときに毎回呼び出さなきゃいけないものをパッケージングして、
+    // 使いまわしできるようにしたもの。
+    unsigned int VAO;
+    glGenVertexArrays(1, &VAO);
+    glBindVertexArray(VAO);
+
+    unsigned int VBO;
+    glGenBuffers(1, &VBO);
+
+    // copy vertex array in buffer for opengl
+    glBindBuffer(GL_ARRAY_BUFFER, VBO);
+    glBufferData(
+            GL_ARRAY_BUFFER,
+            sizeof(vertices),
+            vertices,
+            GL_STATIC_DRAW
+    );
+
+    unsigned int EBO;
+    glGenBuffers(1, &EBO);
+
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
+    glBufferData(
+            GL_ELEMENT_ARRAY_BUFFER,
+            sizeof(indices),
+            indices,
+            GL_STATIC_DRAW
+    );
+
+    // attribute(.vertとかのin変数で使えるような)の set
+    glVertexAttribPointer(0, glm::vec3::length(), GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void *)0);
+    glEnableVertexAttribArray(0);
+
+    glBindBuffer(GL_ARRAY_BUFFER, 0);
+
+    glBindVertexArray(0);
+
+
+
+    load_texture("../asset/container.jpg");
     // glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex) + 2, (void *)offsetof(Vertex, TexCoords));
 
 
@@ -341,7 +365,7 @@ int main()
 
         const glm::mat4 view = glm::lookAt(
                 glm::vec3(0.0f, 5.0f, 5.0f), // camera position
-                glm::vec3(0.0f, 0.0f, 3.0f), // camera target
+                glm::vec3(0.0f, 0.0f, 0.0f), // camera target
                 glm::vec3(0.0f, 1.0f, 0.0f) // camera 上方向
         );
 
@@ -350,10 +374,13 @@ int main()
         glUniformMatrix4fv(projectionLoc, 1, GL_FALSE, &projection[0][0]);
         glUniformMatrix4fv(modelviewLoc, 1, GL_FALSE, &modelview[0][0]);
 
+        
+        glBindVertexArray(VAO);
+        glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+        glBindVertexArray(0);
 
 
-
-        objModel.Draw();
+        // objModel.Draw();
 
         window->swapBuffers();
         window->eventsLoop();
