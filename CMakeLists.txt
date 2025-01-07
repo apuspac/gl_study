@@ -2,6 +2,8 @@ cmake_minimum_required(VERSION 3.5.1)
 
 project(gl_study CXX)
 
+find_package(assimp REQUIRED)
+
 add_executable(${PROJECT_NAME}
     src/main.cpp
 )
@@ -41,6 +43,7 @@ target_link_libraries(${PROJECT_NAME}
         dl
         GLU
         OpenGL
+        assimp
 )
 
 
